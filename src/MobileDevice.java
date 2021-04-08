@@ -1,0 +1,2 @@
+public class MobileDevice {
+}
