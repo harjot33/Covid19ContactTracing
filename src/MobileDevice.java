@@ -1,17 +1,10 @@
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -19,8 +12,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
@@ -29,7 +20,6 @@ public class MobileDevice {
     Government contactTracer;
     static HashMap<String, Integer> mobileRegister = new HashMap<>();
     HashMap<Integer, Properties> contactList = new HashMap<>();
-    static int M_ID = 1;
     int contact_instance=0;
     int synchchecker=0;
     HashMap<String, ArrayList<String >> testrecord = new HashMap<>();
@@ -170,6 +160,7 @@ public class MobileDevice {
         device1.recordContact(deviceHash3,21,30);
      device1.positiveTest(HashGenerator("2323AACCVVV"));
        device1.synchronizeData();
+       device2.synchronizeData();
        // contactTracer.recordTestResult(HashGenerator("2323AACCVVV"), 23, true);
 
     }
