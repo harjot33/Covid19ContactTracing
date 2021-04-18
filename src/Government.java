@@ -32,6 +32,7 @@ public class Government {
         boolean notest = false;
         String sourceHash = document.getElementsByTagName("sourceHash").item(0).getTextContent();
         boolean comecontact = false;
+        ResultSet rs1 = null;
 
 
 
@@ -54,7 +55,7 @@ public class Government {
             String usernotified="";
 
             Calendar calendar = Calendar.getInstance();
-            ResultSet rs1 = null;
+
 
             resultSet = statement.executeQuery("Select source_device,contact_date,contact_duration from contact_tracker where contact_device='"+sourceHash+"'");
             if(resultSet.isBeforeFirst()){
@@ -74,9 +75,12 @@ public class Government {
                         ptcdate = daysAddition(pctest_date,-14);
 
                         if(WithinPositveRange(pcontact_date,ptcdate,ftcdate)){
-                            positive_status = "true";
+                            positive_status = "false";
                             ptest_date = "null";
                             comecontact = true;
+                        }else{
+
+                            // GOTTA WORK HERE
                         }
 
                     }
@@ -92,9 +96,13 @@ public class Government {
                     //    System.out.println(testhash);
                     resultSet = statement.executeQuery("Select TestHash,testDate, TestResult from TestRecord where TestHash ='"+testhash+"';");
 
-                    if(resultSet.isBeforeFirst())
+                    if(resultSet.isBeforeFirst()) {
                         resultSet.next();
+                        String govtresult = resultSet.getString("TestResult");
+                        if(govtresult.equals("true"))
+                            statement.executeUpdate("Update TestResult SET TestDevice='"+sourceHash+"' where TestHash='"+testhash+"';");
                         thashlist.add(resultSet.getString("TestHash"));
+                    }
                 }
                 System.out.println(thashlist);
 
@@ -161,13 +169,12 @@ public class Government {
                             }
                         }
                         exception_date = sdf.format(final_date);
-
-                        pcontact_date = sdf.format(firstdate);
+                        pcontact_date = "null";
                         positive_contact = "SELF";
                         ptest_date = sdf.format(firstdate);
                         positive_status="true";
                     }else{
-                        pcontact_date = sdf.format(firstdate);
+                        pcontact_date = "null";
                         positive_contact = "SELF";
                         ptest_date = sdf.format(firstdate);
                         positive_status="true";
@@ -204,7 +211,7 @@ public class Government {
                 ptest_date = resultSet.getString("testDate");
                 positive_status = resultSet.getString("TestResult");
                 positive_contact = "SELF";
-                pcontact_date = ptest_date;
+                pcontact_date = "null";
                 usernotified = "true";
                 String contactstring = String.join(",", contactlist);
                 statement.executeUpdate("INSERT INTO devicerecord (devicehash, contact_list, last_contact,positive_contact, pcontact_date, positive_status, ptest_date, usernotified)" +"Values('" + sourceHash + "','" + contactstring + "','"+last_contact+"','"+positive_contact+"','"+pcontact_date+"','"+positive_status+"','"+ptest_date+"','"+usernotified+"')");
@@ -220,7 +227,7 @@ public class Government {
                 pcontact_date = "null";
                 usernotified = "false";
                 String contactstring = String.join(",", contactlist);
-                statement.executeUpdate("INSERT INTO devicerecord (devicehash, contact_list, last_contact,positive_contact, pcontact_date, positive_status, ptest_date)" +"Values('" + sourceHash + "','" + contactstring + "','"+last_contact+"','"+positive_contact+"','"+pcontact_date+"','"+positive_status+"','"+ptest_date+"','"+usernotified+"')");
+                statement.executeUpdate("INSERT INTO devicerecord (devicehash, contact_list, last_contact,positive_contact, pcontact_date, positive_status, ptest_date,usernotified)" +"Values('" + sourceHash + "','" + contactstring + "','"+last_contact+"','"+positive_contact+"','"+pcontact_date+"','"+positive_status+"','"+ptest_date+"','"+usernotified+"')");
                 for(int i =0 ; i<contactlist.size();i++){
                     statement.executeUpdate("INSERT INTO contact_tracker (source_device, contact_device, contact_date,contact_duration)"+ "Values('" + sourceHash + "','" + contactlist.get(i) + "','"+dateList.get(i)+"','"+durationList.get(i)+"')");
 
@@ -229,9 +236,9 @@ public class Government {
             }else if(!comecontact){
                 String contactstring = String.join(",", contactlist);
                 usernotified = "true";
-                statement.executeUpdate("INSERT INTO devicerecord (devicehash, contact_list, last_contact,positive_contact, pcontact_date, positive_status, ptest_date)" + "Values('" + sourceHash + "','" + contactstring + "','" + last_contact + "','" + positive_contact + "','" + pcontact_date + "','" + positive_status + "','" + ptest_date+"','"+usernotified + "')");
+                statement.executeUpdate("INSERT INTO devicerecord (devicehash, contact_list, last_contact,positive_contact, pcontact_date, positive_status, ptest_date,usernotified)" + "Values('" + sourceHash + "','" + contactstring + "','" + last_contact + "','" + positive_contact + "','" + pcontact_date + "','" + positive_status + "','" + ptest_date+"','"+usernotified + "')");
                 for(int i =0 ; i<contactlist.size();i++){
-                    statement.executeUpdate("INSERT INTO contact_tracker (source_device, contact_device, contact_date,contact_duration Values('" + sourceHash + "','" + contactlist.get(i) + "','"+dateList.get(i)+"','"+durationList.get(i)+"')");
+                    statement.executeUpdate("INSERT INTO contact_tracker (source_device, contact_device, contact_date,contact_duration)"+ "Values('" + sourceHash + "','" + contactlist.get(i) + "','"+dateList.get(i)+"','"+durationList.get(i)+"')");
                 }
 
             }else if(comecontact){
@@ -251,6 +258,17 @@ public class Government {
             ArrayList<String> contactlist = new ArrayList<>();
             ArrayList<String> datelist = new ArrayList<>();
             ArrayList<String> durationlist = new ArrayList<>();
+            String duplicateverification;
+            String lastcontactDB;
+            String lastcontactLO;
+            String usernotified;
+            String positive_status = "";
+            String positive_contact ;
+            String pcontact_date;
+            String pctest_date;
+            String ftcdate ;
+            String ptcdate;
+            String ptest_date;
             resultSet.next();
             for(int i =0 ; i < ok.getLength(); i++){
                 String deviceHash  =document.getElementsByTagName("deviceHash").item(i).getTextContent();
@@ -260,6 +278,200 @@ public class Government {
                 String duration = document.getElementsByTagName("duration").item(i).getTextContent();
                 durationlist.add(duration);
             }
+
+            duplicateverification = resultSet.getString("contact_list");
+            lastcontactDB = resultSet.getString("last_contact");
+            positive_status = resultSet.getString("positive_status");
+            lastcontactLO = contactlist.get(contactlist.size()-1);
+            String[] devices = duplicateverification.split(",");
+            List<String> devicelist = new ArrayList<String>(Arrays.asList(devices));
+            usernotified = resultSet.getString("usernotified");
+            String newclist = duplicateverification;
+            String lastcontact="";
+
+
+            if(devices.length == contactlist.size() && lastcontactDB.equals(lastcontactLO)){
+                System.out.println("No new contacts.");
+            }else {
+                int beg = contactlist.indexOf(lastcontactDB);
+                beg++;
+                for (int i = beg; i < contactlist.size(); i++) {
+                    String incominghash = contactlist.get(i);
+
+                    if(devicelist.contains(incominghash)){
+                        resultSet  = statement.executeQuery("Select source_device,contact_date,contact_duration from contact_tracker where contact_device='"+incominghash+"'");
+                        resultSet.next();
+                        String cdate = resultSet.getString("contact_date");
+                        if(cdate.equals(datelist.get(i))){
+                            String duration = resultSet.getString("contact_duration");
+                            int dur = Integer.parseInt(duration);
+                            String ldur = durationlist.get(i);
+                            int dur1 = Integer.parseInt(ldur);
+                            dur = dur+dur1;
+                            String finaldur = dur+"";
+                            rstatement.executeUpdate("Update contact_tracker SET contact_duration='"+finaldur+"' where contact_duration='"+duration+"' AND source_device='"+sourceHash+"';");
+                        }
+
+                    }else{
+                        if(i==contactlist.size()-1){
+                             lastcontact = incominghash;
+                        }
+                        newclist=newclist+","+incominghash;
+                        rstatement.executeUpdate("INSERT INTO contact_tracker (source_device, contact_device, contact_date,contact_duration)"+ "Values('" + sourceHash + "','" + contactlist.get(i) + "','"+datelist.get(i)+"','"+durationlist.get(i)+"')");
+
+                    }
+
+                }
+                rstatement.executeUpdate("Update devicerecord SET contact_list='"+newclist+"' where devicehash='"+sourceHash+"';");
+                rstatement.executeUpdate("Update devicerecord SET last_contact='"+lastcontact+"' where devicehash='"+sourceHash+"';");
+
+
+            }
+
+            if(usernotified.equals("false") && positive_status.equals("false")){
+                resultSet.close();
+                resultSet = statement.executeQuery("Select source_device,contact_date,contact_duration from contact_tracker where contact_device='"+sourceHash+"'");
+                    if(resultSet.isBeforeFirst()){
+                        while (resultSet.next()){
+                            String deviceHash = resultSet.getString("source_device");
+                            String contact_date = resultSet.getString("contact_date");
+                            String contact_duration = resultSet.getString("contact_duration");
+                            rs1 = rstatement.executeQuery("Select * from devicerecord where devicehash='"+deviceHash+"';");
+                            rs1.next();
+                            String cp_status = rs1.getString("positive_status");
+                            if(cp_status.equals("true")){
+                                 positive_contact = rs1.getString("deviceHash");
+                                 pcontact_date = contact_date;
+                                 pctest_date =  rs1.getString("ptest_date");
+                                 ftcdate = daysAddition(pctest_date,14);
+                                 ptcdate = daysAddition(pctest_date,-14);
+
+                                if(WithinPositveRange(pcontact_date,ptcdate,ftcdate)){
+                                    rstatement.executeUpdate("Update devicerecord SET usernotified='true' where devicehash='"+sourceHash+"';");
+                                    rstatement.executeUpdate("Update devicerecord SET pcontact_date='"+contact_date+"' where devicehash='"+sourceHash+"';");
+                                    comecontact = true;
+                                }else{
+
+                                    // GOTTA WORK HERE
+                                }
+
+                            }
+                        }
+                    }
+
+                }
+            NodeList testlist = document.getElementsByTagName("testHash");
+            String testhash="";
+            boolean singulartest=false;
+            Calendar calendar = Calendar.getInstance();
+            String exception_date = "";
+            ArrayList<String> thashlist = new ArrayList<>();
+            if(!document.getElementsByTagName("testHash").item(0).getTextContent().isEmpty()){
+
+
+                for(int i = 0 ; i<testlist.getLength(); i++){
+                    testhash = document.getElementsByTagName("testHash").item(i).getTextContent();
+                    //    System.out.println(testhash);
+                    resultSet = statement.executeQuery("Select TestHash,TestDevice, testDate, TestResult from TestRecord where TestHash ='"+testhash+"';");
+                    if(resultSet.isBeforeFirst()) {
+                        resultSet.next();
+                        String deviceassigned = resultSet.getString("TestDevice");
+                        String govtresult = resultSet.getString("TestResult");
+                        if(govtresult.equals("true") && deviceassigned==null)
+                            rstatement.executeUpdate("Update TestRecord SET TestDevice='"+sourceHash+"' where TestHash='"+testhash+"';");
+                        thashlist.add(resultSet.getString("TestHash"));
+                    }
+                }
+
+                System.out.println(thashlist);
+
+                if(thashlist.size()==1){
+                    resultSet = statement.executeQuery("Select TestHash,testDate, TestResult from TestRecord where TestHash ='"+testhash+"';");
+                    resultSet.next();
+                    ptest_date = resultSet.getString("testDate");
+                    positive_status = "true";
+                    statement.executeUpdate("Update devicerecord SET positive_status='"+positive_status+"' where devicehash='"+sourceHash+"';");
+                    statement.executeUpdate("Update devicerecord SET ptest_date='"+ptest_date+"' where devicehash='"+sourceHash+"';");
+
+                }else if(thashlist.size()>1){
+                    Map<Integer, String> testdateregister = new HashMap<>();
+                    ArrayList<Integer> keytracker = new ArrayList<>();
+                    ArrayList<String> ExceptionDate = new ArrayList<>();
+
+                    for(int i =0 ; i<thashlist.size();i++){
+                        testhash = thashlist.get(0);
+                        resultSet = statement.executeQuery("Select TestHash,testDate, TestResult from TestRecord where TestHash ='"+testhash+"';");
+                        resultSet.next();
+                        String govtresult = resultSet.getString("TestResult");
+                        if(govtresult.equals("true")){
+                            System.out.println("TEST HAS BEEN VALIDATED");
+                            String date = resultSet.getString("testDate");
+                            testdateregister.put(i,date);
+                            keytracker.add(i);
+                        }
+                    }
+                    String smalldate = testdateregister.get(0);
+                    Date firstdate = new Date();
+                    Date date1 = sdf.parse(smalldate);
+                    for(int i =1 ; i<testdateregister.size();i++){
+                        int key = keytracker.get(i);
+                        Date date2 = sdf.parse(testdateregister.get(key));
+                        if(date2.after(date1)){
+                            firstdate = date1;
+                            calendar.setTime(date1);
+                            calendar.add(Calendar.DAY_OF_MONTH,14);
+                            String futuredate = sdf.format(calendar.getTime());
+                            Date negativedate = sdf.parse(futuredate);
+                            String entry = sdf.format(negativedate);
+
+                            if(negativedate.before(date2)){
+                                ExceptionDate.add(entry);
+                            }
+
+                        }else{
+                            firstdate = date2;
+                            calendar.setTime(firstdate);
+                            calendar.add(Calendar.DAY_OF_MONTH,14);
+                            String futuredate = sdf.format(calendar.getTime());
+                            Date negativedate = sdf.parse(futuredate);
+                            String entry = sdf.format(negativedate);
+
+                            if(negativedate.before(date1)){
+                                ExceptionDate.add(entry);
+                            }
+                        }
+                    }
+                    Date final_date = sdf.parse("01-01-2021");
+                    if(ExceptionDate.size()!=0){
+                        for(int i =0 ; i<ExceptionDate.size();i++){
+                            Date current_date = sdf.parse(ExceptionDate.get(i));
+
+                            if(current_date.after(final_date)){
+                                final_date = current_date;
+                            }
+                        }
+                        exception_date = sdf.format(final_date);
+                        pcontact_date = "null";
+                        positive_contact = "SELF";
+                        ptest_date = sdf.format(firstdate);
+                        positive_status="true";
+                        statement.executeUpdate("Update devicerecord SET positive_status='"+positive_status+"' where devicehash='"+sourceHash+"';");
+                        statement.executeUpdate("Update devicerecord SET ptest_date='"+ptest_date+"' where devicehash='"+sourceHash+"';");
+                    }else{
+                        pcontact_date = "null";
+                        positive_contact = "SELF";
+                        ptest_date = sdf.format(firstdate);
+                        positive_status="true";
+                        statement.executeUpdate("Update devicerecord SET positive_status='"+positive_status+"' where devicehash='"+sourceHash+"';");
+                        statement.executeUpdate("Update devicerecord SET ptest_date='"+ptest_date+"' where devicehash='"+sourceHash+"';");
+                    }
+
+
+                }
+            }else{
+                notest = true;
+            }
+
         }
 
 
@@ -269,6 +481,54 @@ public class Government {
         }else{
             return  false;
         }
+    }
+
+
+
+    public int findGatherings(int date, int minSize, int minTime, float density) throws SQLException {
+        if(statement==null){
+            ConnectionEshtablisher("");
+        }
+
+        String finaldate = null;
+        try {
+            finaldate = daysAddition("01-01-2021",date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        resultSet= statement.executeQuery("Select source_device, contact_device, contact_date, contact_duration from contact_tracker where contact_date='"+finaldate+"'");
+        Set<String> Set1 = new LinkedHashSet<>();
+        LinkedHashMap<String,ArrayList<String>> contacts = new LinkedHashMap<>();
+        while (resultSet.next()){
+            String key = resultSet.getString("source_device");
+            String value = resultSet.getString("contact_device");
+
+            if(contacts.containsKey(key)){
+                ArrayList<String> incoming = contacts.get(key);
+                ArrayList<String> outgoing = new ArrayList<>(incoming);
+                if(!incoming.contains(value)) {
+                    outgoing.add(value);
+                    contacts.put(key, outgoing);
+                }
+            }else if(!contacts.containsKey(key)){
+                if(contacts.containsKey(value)){
+                    ArrayList<String> incoming = contacts.get(value);
+
+                    if(!incoming.contains(key)){
+                        ArrayList<String> outgoing = new ArrayList<>();
+                        outgoing.add(value);
+                        contacts.put(key,outgoing);
+                    }
+                }else{
+                    ArrayList<String> outgoing = new ArrayList<>();
+                    outgoing.add(value);
+                    contacts.put(key,outgoing);
+                }
+            }
+        }
+        System.out.println(contacts.);
+
+        return 1;
     }
 
     private boolean WithinPositveRange(String cdate, String ptdate, String ftdate) throws ParseException {
@@ -319,6 +579,9 @@ public class Government {
             System.out.println("Invalid Test Hash or Date");
             return;
         }
+        if(statement==null){
+            ConnectionEshtablisher("");
+        }
 
         Calendar calendar = Calendar.getInstance();
         try {
@@ -330,8 +593,10 @@ public class Government {
         calendar.add(Calendar.DAY_OF_MONTH,date);
         String dateofcontact = sdf.format(calendar.getTime());
 
-        statement.executeUpdate("Insert into TestRecord (TestHash, testDate, TestResult) Values('" + testHash + "','" + dateofcontact + "','"+result+"')");
+        statement.executeUpdate("Insert into TestRecord (TestHash, testDate, TestResult) Values('" + testHash + "','"+ dateofcontact + "','"+result+"')");
     }
+
+
 
 
 }
