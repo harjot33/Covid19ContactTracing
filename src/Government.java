@@ -215,51 +215,60 @@ public class Government { // This Government Class is used to mimic how the Gove
                 usernotified = "false";
                 String contactstring = String.join(",", contactlist);
                 statement.executeUpdate("INSERT INTO devicerecord (devicehash, contact_list, last_contact,positive_contact, pcontact_date, positive_status, ptest_date, usernotified)" +"Values('" + sourceHash + "','" + contactstring + "','"+last_contact+"','"+positive_contact+"','"+pcontact_date+"','"+positive_status+"','"+ptest_date+"','"+usernotified+"')");
+                //SQL Query for inserting information into the devicerecord table.
                 for(int i =0 ; i<contactlist.size();i++){
                     statement.executeUpdate("INSERT INTO contact_tracker (source_device, contact_device, contact_date,contact_duration)"+ "Values('" + sourceHash + "','" + contactlist.get(i) + "','"+dateList.get(i)+"','"+durationList.get(i)+"')");
-
+                //SQL Query for inserting information into the contact_tracker table.
                 }
 
-            }else if(notest && !comecontact){
-                ptest_date = "null";
-                positive_status = "false";
-                positive_contact = "null";
-                pcontact_date = "null";
-                usernotified = "false";
+            }else if(notest && !comecontact){ // If there are no tests and the phone has not come in contact with anyone
+                ptest_date = "null"; // Setting the p_test as null
+                positive_status = "false";  // positive status is false
+                positive_contact = "null"; // no positive contacts
+                pcontact_date = "null"; // no positive test dates as there are no tests
+                usernotified = "false"; // The usernotified is set to be false
                 String contactstring = String.join(",", contactlist);
                 statement.executeUpdate("INSERT INTO devicerecord (devicehash, contact_list, last_contact,positive_contact, pcontact_date, positive_status, ptest_date,usernotified)" +"Values('" + sourceHash + "','" + contactstring + "','"+last_contact+"','"+positive_contact+"','"+pcontact_date+"','"+positive_status+"','"+ptest_date+"','"+usernotified+"')");
+                // This query is used to insert information into the devicerecord table
                 for(int i =0 ; i<contactlist.size();i++){
                     statement.executeUpdate("INSERT INTO contact_tracker (source_device, contact_device, contact_date,contact_duration)"+ "Values('" + sourceHash + "','" + contactlist.get(i) + "','"+dateList.get(i)+"','"+durationList.get(i)+"')");
-
+                    // This contact_tracker table has had some data inserted into the by the above statement
                 }
 
-            }else if(!comecontact){
+            }else if(!comecontact){ // If there is simply no contact.
                 String contactstring = String.join(",", contactlist);
-                usernotified = "false";
+                usernotified = "false"; // User notified as "false".
                 statement.executeUpdate("INSERT INTO devicerecord (devicehash, contact_list, last_contact,positive_contact, pcontact_date, positive_status, ptest_date,usernotified)" + "Values('" + sourceHash + "','" + contactstring + "','" + last_contact + "','" + positive_contact + "','" + pcontact_date + "','" + positive_status + "','" + ptest_date+"','"+usernotified + "')");
+                // This query is used to insert information into the devicerecord table
                 for(int i =0 ; i<contactlist.size();i++){
                     statement.executeUpdate("INSERT INTO contact_tracker (source_device, contact_device, contact_date,contact_duration)"+ "Values('" + sourceHash + "','" + contactlist.get(i) + "','"+dateList.get(i)+"','"+durationList.get(i)+"')");
+                    // This contact_tracker table has had some data inserted into the by the above statement
+
                 }
 
-            }else if(comecontact){
+            }else if(comecontact){ // If the device has come in contact with someone who has tested positive for the covid.
                 String contactstring = String.join(",", contactlist);
                 usernotified = "true";
                 rstatement.executeUpdate("Update devicerecord SET usernotified='true' where devicehash='"+sourceHash+"';");
+                //Updating the usernotified as true.
                 statement.executeUpdate("INSERT INTO devicerecord (devicehash, contact_list, last_contact,positive_contact, pcontact_date, positive_status, ptest_date, usernotified)" +"Values('" + sourceHash + "','" + contactstring + "','"+last_contact+"','"+positive_contact+"','"+pcontact_date+"','"+positive_status+"','"+ptest_date+"','"+usernotified+"')");
+                //This query is used to insert information into the devicerecord table
                 for(int i =0 ; i<contactlist.size();i++){
                     statement.executeUpdate("INSERT INTO contact_tracker (source_device, contact_device, contact_date,contact_duration)"+ "Values('" + sourceHash + "','" + contactlist.get(i) + "','"+dateList.get(i)+"','"+durationList.get(i)+"')");
+                    // This contact_tracker table has had some data inserted into the by the above statement
                 }
 
 
             }
 
 
-        }else {
-            boolean notif = false;
-            NodeList ok = document.getElementsByTagName("device");
-            ArrayList<String> contactlist = new ArrayList<>();
-            ArrayList<String> datelist = new ArrayList<>();
-            ArrayList<String> durationlist = new ArrayList<>();
+        }else { // If there are entries already in the source hash device.
+            boolean notif = false; // notif is set to be false
+            NodeList ok = document.getElementsByTagName("device"); // Getting the nodelist ok as the elements of the "device" are taken
+            ArrayList<String> contactlist = new ArrayList<>(); // contactlist is intialized
+            ArrayList<String> datelist = new ArrayList<>(); // datelist is initialized
+            ArrayList<String> durationlist = new ArrayList<>();// durationlisti s intialized
+            // Below Strings are used in the following code to give information about the table and what its columns are.
             String duplicateverification;
             String lastcontactDB;
             String lastcontactLO;
@@ -272,7 +281,7 @@ public class Government { // This Government Class is used to mimic how the Gove
             String ptcdate;
             String ptest_date;
             resultSet.next();
-            for(int i =0 ; i < ok.getLength(); i++){
+            for(int i =0 ; i < ok.getLength(); i++){ // In this iterative statement, we loop over the previously created Document elements as we add to the contact, date and duration arraylists.
                 String deviceHash  =document.getElementsByTagName("deviceHash").item(i).getTextContent();
                 contactlist.add(deviceHash);
                 String date = document.getElementsByTagName("date").item(i).getTextContent();
@@ -281,142 +290,153 @@ public class Government { // This Government Class is used to mimic how the Gove
                 durationlist.add(duration);
             }
 
-            duplicateverification = resultSet.getString("contact_list");
-            lastcontactDB = resultSet.getString("last_contact");
-            positive_status = resultSet.getString("positive_status");
-            lastcontactLO = contactlist.get(contactlist.size()-1);
-            String[] devices = duplicateverification.split(",");
-            List<String> devicelist = new ArrayList<String>(Arrays.asList(devices));
-            usernotified = resultSet.getString("usernotified");
-            String newclist = duplicateverification;
-            String lastcontact="";
+            duplicateverification = resultSet.getString("contact_list"); // We firstly get the contact_list from the  database
+            lastcontactDB = resultSet.getString("last_contact"); // Then we get the last contact from the database
+            positive_status = resultSet.getString("positive_status");// It is followed by the positive status of the source device.
+            lastcontactLO = contactlist.get(contactlist.size()-1); // We further retrieve the lastcontact that is there on the local device.
+            String[] devices = duplicateverification.split(","); // Now we create an array of strings with "," as the delimiter from the contact_list taken from the database
+            List<String> devicelist = new ArrayList<String>(Arrays.asList(devices)); // Further convert the array into a list
+            usernotified = resultSet.getString("usernotified"); // Retreieve the usernotified status from the database.
+            String newclist = duplicateverification; // Taking the contact list retrieved from the database into a string
+            String lastcontact="";// initializing lastcontact as empty string
 
 
-            if(devices.length == contactlist.size() && lastcontactDB.equals(lastcontactLO)){
-                if(usernotified.equals("true")){
+            if(devices.length == contactlist.size() && lastcontactDB.equals(lastcontactLO)){ // This is done to ensure that same contacts are not added again and again, hence causing duplicacy, these two checks enforce that only new contacts are added.
+                if(usernotified.equals("true")){ // If the usernotified equals true, we set the notif boolean as true
                     notif = true;
                 }
-                System.out.println("No new contacts.");
-            }else {
-                int beg = contactlist.indexOf(lastcontactDB);
-                beg++;
-                for (int i = beg; i < contactlist.size(); i++) {
-                    String incominghash = contactlist.get(i);
+                System.out.println("No new contacts."); // Print No new contacts message.
+            }else { // If there are new contacts, the following code sequence is executed.
+                int beg = contactlist.indexOf(lastcontactDB); // The lastcontact of the local data is retrieved
+                beg++; // Increment by one to look at the index of the new contact
+                for (int i = beg; i < contactlist.size(); i++) { // Then we loop from that point to the end of the list
+                    String incominghash = contactlist.get(i); // Retrieving the new contacts from the list one by one as the loop iterates.
 
-                    if(devicelist.contains(incominghash)){
+                    if(devicelist.contains(incominghash)){ // This statement is for those conditions when a previously added contact has been added again.
                         resultSet  = statement.executeQuery("Select source_device,contact_date,contact_duration from contact_tracker where contact_device='"+incominghash+"'");
-                        resultSet.next();
-                        String cdate = resultSet.getString("contact_date");
-                        if(cdate.equals(datelist.get(i))){
-                            String duration = resultSet.getString("contact_duration");
-                            int dur = Integer.parseInt(duration);
-                            String ldur = durationlist.get(i);
-                            int dur1 = Integer.parseInt(ldur);
-                            dur = dur+dur1;
+                        resultSet.next(); // Shifting to the next row which actually points to the data.
+                        String cdate = resultSet.getString("contact_date");// Getting the contact_date
+                        if(cdate.equals(datelist.get(i))){ // If the contact_date equals to a date in the datelist - there is already a contact with the same device on the given date.
+                            // We add the duration of both the contacts as they happen on the same date.
+                            String duration = resultSet.getString("contact_duration"); // We retrieve the contact duration from the database
+                            int dur = Integer.parseInt(duration); // Parse it into an integer
+                            String ldur = durationlist.get(i);// We retrieve the local duration
+                            int dur1 = Integer.parseInt(ldur);// Parse it into an integer
+                            dur = dur+dur1; // add the duration
                             String finaldur = dur+"";
                             rstatement.executeUpdate("Update contact_tracker SET contact_duration='"+finaldur+"' where contact_duration='"+duration+"' AND source_device='"+sourceHash+"';");
+                            // Here we have updated the existing contact on the database and added the duration as the contacts were happening on the same day.
+                        }else{ // If the same contact happened on a different day.
+                            if(i==contactlist.size()-1){
+                                lastcontact = incominghash; // Getting the last contact
+                            }
+                            newclist=newclist+","+incominghash;
+                            rstatement.executeUpdate("INSERT INTO contact_tracker (source_device, contact_device, contact_date,contact_duration)"+ "Values('" + sourceHash + "','" + contactlist.get(i) + "','"+datelist.get(i)+"','"+durationlist.get(i)+"')");
+                            // Inserting the new contact into the database.
+
                         }
 
-                    }else{
+                    }else{ // If the contact happeneed on a different day, new contacts happening on a different day.
                         if(i==contactlist.size()-1){
-                             lastcontact = incominghash;
+                             lastcontact = incominghash; // Getting the last contact
                         }
                         newclist=newclist+","+incominghash;
                         rstatement.executeUpdate("INSERT INTO contact_tracker (source_device, contact_device, contact_date,contact_duration)"+ "Values('" + sourceHash + "','" + contactlist.get(i) + "','"+datelist.get(i)+"','"+durationlist.get(i)+"')");
-
+                        // Inserting the new contact into the database.
                     }
-                    String contact_date = "";
-                    rs1 = rstatement.executeQuery("Select * from devicerecord where deviceHash='"+incominghash+"';");
-                    resultSet = statement.executeQuery("Select * from contact_tracker where source_device='"+sourceHash+"' AND contact_device='"+incominghash+"';");
+                    String contact_date = ""; // Initializing contact_date with empty string.
+                    rs1 = rstatement.executeQuery("Select * from devicerecord where deviceHash='"+incominghash+"';"); // Here we get the device details of the device in the contact list.
+                    resultSet = statement.executeQuery("Select * from contact_tracker where source_device='"+sourceHash+"' AND contact_device='"+incominghash+"';"); // We further get the contacts between the source device and contact device
                     if(resultSet.isBeforeFirst()){
                         resultSet.next();
                         contact_date = resultSet.getString("contact_date");
-                    }
+                    } // Getting the date of contact.
                     rs1.next();
-                    String cp_status = rs1.getString("positive_status");
-                    if(cp_status.equals("true")){
+                    String cp_status = rs1.getString("positive_status"); // Getting the positive status of the contact
+                    if(cp_status.equals("true")){ // If its true we then check the date of the contact and compare it with the test date of the device which has test positive, using the absolute value.
                         positive_contact = rs1.getString("deviceHash");
                         pcontact_date = contact_date;
                         pctest_date =  rs1.getString("ptest_date");
                         ftcdate = daysAddition(pctest_date,14);
                         ptcdate = daysAddition(pctest_date,-14);
 
-                        if(WithinPositveRange(pcontact_date,ptcdate,ftcdate)){
+                        if(WithinPositveRange(pcontact_date,ptcdate,ftcdate)){ // If it is found that it is within the absolute range +-14 Days, then we say that the device has come in contact with a positive person.
                             positive_status = "false";
                             ptest_date = "null";
-                            comecontact = true;
-                            usernotified="true";
-                            rstatement.executeUpdate("Update devicerecord SET usernotified='true' where devicehash='"+sourceHash+"';");
+                            comecontact = true; // We set the comecontact boolean to be true to signal that it has been in contact with a positive person
+                            usernotified="true"; // User has been notified.
+                            rstatement.executeUpdate("Update devicerecord SET usernotified='true' where devicehash='"+sourceHash+"';"); // Update the same in the database
                         }
 
                     }
 
                 }
-                rstatement.executeUpdate("Update devicerecord SET contact_list='"+newclist+"' where devicehash='"+sourceHash+"';");
-                rstatement.executeUpdate("Update devicerecord SET last_contact='"+lastcontact+"' where devicehash='"+sourceHash+"';");
+                rstatement.executeUpdate("Update devicerecord SET contact_list='"+newclist+"' where devicehash='"+sourceHash+"';"); // We update the contactlist with the new contacts.
+                rstatement.executeUpdate("Update devicerecord SET last_contact='"+lastcontact+"' where devicehash='"+sourceHash+"';"); // We add the last contact according to the newly added contacts.
 
 
             }
 
-            if(usernotified.equals("false") && positive_status.equals("false")){
-                resultSet.close();
+            if(usernotified.equals("false") && positive_status.equals("false")){ // If the user has not been notified and they have not tested positive
+                resultSet.close();// We firstly close the resultset
                 resultSet = statement.executeQuery("Select source_device,contact_date,contact_duration from contact_tracker where contact_device='"+sourceHash+"'");
-                    if(resultSet.isBeforeFirst()){
-                        while (resultSet.next()){
-                            String deviceHash = resultSet.getString("source_device");
-                            String contact_date = resultSet.getString("contact_date");
-                            String contact_duration = resultSet.getString("contact_duration");
+                // Then we get the device contact record from the database.
+                if(resultSet.isBeforeFirst()){ // if the resulset is not empty then
+                        while (resultSet.next()){ // perform the follow operations while the resultset has a next row.
+                            String deviceHash = resultSet.getString("source_device"); // we get the devicehash string.
+                            String contact_date = resultSet.getString("contact_date"); // we then get the contact_date of the contact
+                            String contact_duration = resultSet.getString("contact_duration"); // get the duration of the contact
                             rs1 = rstatement.executeQuery("Select * from devicerecord where devicehash='"+deviceHash+"';");
+                            // Use the database to get the details of the contact device
                             rs1.next();
                             String cp_status = rs1.getString("positive_status");
-                            if(cp_status.equals("true")){
+                            if(cp_status.equals("true")){ // If any of the device has tested positive, then we use the absolute value of its test date to determine whether the host device has come in contact with it or not
                                  positive_contact = rs1.getString("deviceHash");
                                  pcontact_date = contact_date;
                                  pctest_date =  rs1.getString("ptest_date");
                                  ftcdate = daysAddition(pctest_date,14);
                                  ptcdate = daysAddition(pctest_date,-14);
 
-                                if(WithinPositveRange(pcontact_date,ptcdate,ftcdate)){
+                                if(WithinPositveRange(pcontact_date,ptcdate,ftcdate)){// If it is found that it is within the absolute range +-14 Days, then we say that the device has come in contact with a positive person.
                                     usernotified = "true";
-                                    rstatement.executeUpdate("Update devicerecord SET usernotified='true' where devicehash='"+sourceHash+"';");
-                                    rstatement.executeUpdate("Update devicerecord SET pcontact_date='"+contact_date+"' where devicehash='"+sourceHash+"';");
+                                    rstatement.executeUpdate("Update devicerecord SET usernotified='true' where devicehash='"+sourceHash+"';"); // User notified updated
+                                    rstatement.executeUpdate("Update devicerecord SET pcontact_date='"+contact_date+"' where devicehash='"+sourceHash+"';");// Positive Contact Date has been updated.
                                     comecontact = true;
-                                }else{
-
-                                    // GOTTA WORK HERE
                                 }
-
                             }
                         }
                     }
 
                 }
-            NodeList testlist = document.getElementsByTagName("testHash");
+            NodeList testlist = document.getElementsByTagName("testHash"); // Getting the testlist from the element "testhash" of the document
             String testhash="";
-            boolean singulartest=false;
-            Calendar calendar = Calendar.getInstance();
-            String exception_date = "";
-            ArrayList<String> thashlist = new ArrayList<>();
-            if(!document.getElementsByTagName("testHash").item(0).getTextContent().isEmpty()){
+            boolean singulartest=false; // Set the singulartest boolean as false
+            Calendar calendar = Calendar.getInstance(); // Getting the calendar instance
+            String exception_date = ""; // This string stores the exception date of the test.
+            ArrayList<String> thashlist = new ArrayList<>(); // Initializing the thashlist arraylist
+            if(!document.getElementsByTagName("testHash").item(0).getTextContent().isEmpty()){ // If there are elements in the document with the tagname testhash.
 
 
-                for(int i = 0 ; i<testlist.getLength(); i++){
-                    testhash = document.getElementsByTagName("testHash").item(i).getTextContent();
+                for(int i = 0 ; i<testlist.getLength(); i++){ // Loop through the testlist.
+                    testhash = document.getElementsByTagName("testHash").item(i).getTextContent(); // Get the tests one by one from the elements.
                     //    System.out.println(testhash);
-                    resultSet = statement.executeQuery("Select TestHash,TestDevice, testDate, TestResult from TestRecord where TestHash ='"+testhash+"';");
+                    resultSet = statement.executeQuery("Select TestHash,TestDevice, testDate, TestResult from TestRecord where TestHash ='"+testhash+"';"); // Retrieving the test date from the database.
                     if(resultSet.isBeforeFirst()) {
                         resultSet.next();
                         String deviceassigned = resultSet.getString("TestDevice");
                         String govtresult = resultSet.getString("TestResult");
-                        if(govtresult.equals("true") && deviceassigned==null)
+                        if(govtresult.equals("true") && deviceassigned==null) // If it is found that a positive result is there but no device has been assigned, assign the device to a positive test.
                             rstatement.executeUpdate("Update TestRecord SET TestDevice='"+sourceHash+"' where TestHash='"+testhash+"';");
                         thashlist.add(resultSet.getString("TestHash"));
                     }
                 }
 
-                System.out.println(thashlist);
 
-                if(thashlist.size()==1){
+                if(thashlist.size()==1){ // If there is only 1 test done by the device.
+                    // Retrieve the data from the testrecord table of the database.
+                    // Then we set the positive status of the device as true
+                    // Followed by setting the positive test date.
+                    // Then we set the usernotified to be false.
                     resultSet = statement.executeQuery("Select TestHash,testDate, TestResult from TestRecord where TestHash ='"+testhash+"';");
                     resultSet.next();
                     ptest_date = resultSet.getString("testDate");
@@ -426,18 +446,27 @@ public class Government { // This Government Class is used to mimic how the Gove
                     rstatement.executeUpdate("Update devicerecord SET usernotified='false' where devicehash='"+sourceHash+"';");
 
                 }else if(thashlist.size()>1){
+
+                    // If there are more than 1 test done by the device.
+                    // Retrieve the data from the testrecord table of the database.
+                    // Then we set the positive status of the device as true
+                    // Followed by setting the positive test date.
+                    // Then we set the usernotified to be false.
                     Map<Integer, String> testdateregister = new HashMap<>();
                     ArrayList<Integer> keytracker = new ArrayList<>();
                     ArrayList<String> ExceptionDate = new ArrayList<>();
+                    ArrayList<String> testDateAddition = new ArrayList<>();
 
                     for(int i =0 ; i<thashlist.size();i++){
                         testhash = thashlist.get(0);
                         resultSet = statement.executeQuery("Select TestHash,testDate, TestResult from TestRecord where TestHash ='"+testhash+"';");
+                        //Retriev the test record of the device
                         resultSet.next();
                         String govtresult = resultSet.getString("TestResult");
-                        if(govtresult.equals("true")){
+                        if(govtresult.equals("true")){ // We add the positive test hashes of the device in the following code sequence
                             System.out.println("TEST HAS BEEN VALIDATED");
                             String date = resultSet.getString("testDate");
+                            testDateAddition.add(date);
                             testdateregister.put(i,date);
                             keytracker.add(i);
                         }
@@ -446,6 +475,8 @@ public class Government { // This Government Class is used to mimic how the Gove
                     Date firstdate = new Date();
                     Date date1 = sdf.parse(smalldate);
                     for(int i =1 ; i<testdateregister.size();i++){
+                        // In this code section, we use iterate to find the "ExceptionDate" of the tests, by this it is meant that suppose a user has tested positive beyond the 14 days from the first date that they had tested positive
+                        // So we consider this as an exception date and similarly add the instances of these dates to the ExceptionDate ArrayList.
                         int key = keytracker.get(i);
                         Date date2 = sdf.parse(testdateregister.get(key));
                         if(date2.after(date1)){
@@ -474,7 +505,7 @@ public class Government { // This Government Class is used to mimic how the Gove
                         }
                     }
                     Date final_date = sdf.parse("01-01-2021");
-                    if(ExceptionDate.size()!=0){
+                    if(ExceptionDate.size()!=0){ // If it is found that the exception date arraylist has a size greater than 0, then we move to set the final date as the largest exception date.
                         for(int i =0 ; i<ExceptionDate.size();i++){
                             Date current_date = sdf.parse(ExceptionDate.get(i));
 
