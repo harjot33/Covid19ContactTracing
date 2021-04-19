@@ -195,6 +195,29 @@ public class UnitTest {
         Assertions.assertFalse(device4.synchronizeData());
         Assertions.assertFalse(device5.synchronizeData());
         Assertions.assertFalse(device6.synchronizeData());
+    }
+
+    @DisplayName("Reporting Test")
+    public void ReportingTest() throws Exception {
+        Properties govtproperties = new Properties(); // We create a properties object to define the properties of the Government.
+        govtproperties.setProperty("user","harjot"); // Used to store the username
+        govtproperties.setProperty("password","B00872298"); // Used to store the password
+        govtproperties.setProperty("url","jdbc:mysql://db.cs.dal.ca:3306/harjot"); //// Used to store the Database URL
+        Government contactTracer = new Government(govtproperties); // The Government Class Object is created with govtproperties as the parameter for the constructor
+        contactTracer.recordTestResult(MobileDevice.HashGenerator("2323AACCVVV"), 50, true); // This method call is used to record testresult into the government's database
+
+
+    }
+
+    @DisplayName("Reporting Test")
+    public void FindGathering() throws Exception {
+        Properties govtproperties = new Properties(); // We create a properties object to define the properties of the Government.
+        govtproperties.setProperty("user","harjot"); // Used to store the username
+        govtproperties.setProperty("password","B00872298"); // Used to store the password
+        govtproperties.setProperty("url","jdbc:mysql://db.cs.dal.ca:3306/harjot"); //// Used to store the Database URL
+        Government contactTracer = new Government(govtproperties); // The Government Class Object is created with govtproperties
+        contactTracer.findGatherings(50, 2, 32, 0.6f);
+
 
     }
 

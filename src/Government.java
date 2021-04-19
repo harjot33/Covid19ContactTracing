@@ -383,10 +383,12 @@ public class Government { // This Government Class is used to mimic how the Gove
                 String incominghash = contactlist.get(i);
                 rs1 = statement.executeQuery("Select * from devicerecord where devicehash='"+incominghash+"'");
                 rs1.next();
-                positive_status = rs1.getString("positive_status");
-                if(positive_status == "true"){
-                    comecontact = true;
-                    rstatement.executeUpdate("Update devicerecord SET usernotified='true' where devicehash='" + sourceHash + "';"); // Update the same in the database
+                if(rs1.isBeforeFirst()) {
+                    positive_status = rs1.getString("positive_status");
+                    if (positive_status == "true") {
+                        comecontact = true;
+                        rstatement.executeUpdate("Update devicerecord SET usernotified='true' where devicehash='" + sourceHash + "';"); // Update the same in the database
+                    }
                 }
 
             }
