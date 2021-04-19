@@ -1,0 +1,28 @@
+database creation script
+: 
+create table contact_tracker(
+source_device varchar(300) not null,
+contact_device varchar(300) not null,
+contact_date varchar(30) not null,
+contact_duration varchar(30) not null
+);
+
+
+create table devicerecord(
+devicehash varchar(300) not null primary key,
+contact_list mediumtext,
+last_contact varchar(300),
+positive_contact varchar(300),
+pcontact_date varchar(20),
+positive_status varchar(20),
+ptest_date varchar(30),
+usernotified varchar(20)
+);
+
+
+Create Table TestRecord(
+TestHash varchar(256) not null PRIMARY KEY,
+TestDevice varchar(256,
+testDate varchar(255) not null,
+TestResult varchar(255) not null
+);

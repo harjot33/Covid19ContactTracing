@@ -310,13 +310,7 @@ public class Government { // This Government Class is used to mimic how the Gove
                     String incominghash = contactlist.get(i); // Retrieving the new contacts from the list one by one as the loop iterates.
 
                     if(devicelist.contains(incominghash)){ // This statement is for those conditions when a previously added contact has been added again.
-                        rs1 = statement.executeQuery("Select * from devicerecord where devicehash='"+incominghash+"'");
-                        rs1.next();
-                        positive_status = rs1.getString("positive_status");
-                        if(positive_status == "true"){
-                            comecontact = true;
-                            rstatement.executeUpdate("Update devicerecord SET usernotified='true' where devicehash='" + sourceHash + "';"); // Update the same in the database
-                        }
+
                         resultSet  = statement.executeQuery("Select source_device,contact_date,contact_duration from contact_tracker where contact_device='"+incominghash+"'");
                         resultSet.next(); // Shifting to the next row which actually points to the data.
                         String cdate = resultSet.getString("contact_date");// Getting the contact_date
@@ -383,6 +377,17 @@ public class Government { // This Government Class is used to mimic how the Gove
                 rstatement.executeUpdate("Update devicerecord SET contact_list='"+newclist+"' where devicehash='"+sourceHash+"';"); // We update the contactlist with the new contacts.
                 rstatement.executeUpdate("Update devicerecord SET last_contact='"+lastcontact+"' where devicehash='"+sourceHash+"';"); // We add the last contact according to the newly added contacts.
 
+
+            }
+            for(int i = 0 ; i<contactlist.size(); i++){
+                String incominghash = contactlist.get(i);
+                rs1 = statement.executeQuery("Select * from devicerecord where devicehash='"+incominghash+"'");
+                rs1.next();
+                positive_status = rs1.getString("positive_status");
+                if(positive_status == "true"){
+                    comecontact = true;
+                    rstatement.executeUpdate("Update devicerecord SET usernotified='true' where devicehash='" + sourceHash + "';"); // Update the same in the database
+                }
 
             }
 

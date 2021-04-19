@@ -143,16 +143,14 @@ public class MobileDevice { // MobileDevice Class - This class is used to concep
         config.setProperty("address", "127.192.1.1"); // Defining the address of the mobile device
         config.setProperty("deviceName", "Oneplus 3T"); // Defining the name of the mobile device
         String unique = config.getProperty("address") + config.getProperty("deviceName"); // We use string concatenation to combine both device name and the address.
-        //String deviceHash1 = HashGenerator(unique); // Send the combined string as parameter to generate the unique Hash of the device.
-        String deviceHash1 = "Device-1";
+        String deviceHash1 = HashGenerator(unique); // Send the combined string as parameter to generate the unique Hash of the device.
         config.setProperty("deviceHash", deviceHash1);// We create the config of the second mobile device
         MobileDevice device1 = new MobileDevice(config, contactTracer); // Create the instance of the first mobile device with its config properties and the government object.
         Properties config2 = new Properties(); // We create the config properties of the second mobile device
         config2.setProperty("address", "117.192.1.1"); // Defining the address of the mobile device
         config2.setProperty("deviceName", "Samsung Galaxy");  // Defining the name of the mobile device
         unique = config2.getProperty("address") + config2.getProperty("deviceName"); // We use string concatenation to combine both device name and the address.
-    //    String deviceHash2 = HashGenerator(unique); // Send the combined string as parameter to generate the unique Hash of the device.
-        String deviceHash2 = "Device-2";
+     String deviceHash2 = HashGenerator(unique); // Send the combined string as parameter to generate the unique Hash of the device.
         config2.setProperty("deviceHash", deviceHash2); // Setting the Hash of the device.
         MobileDevice device2 = new MobileDevice(config2,contactTracer); // Creating the instance of the device - 2 with config properties and contactTracer object.
         device1.recordContact(deviceHash2,50,30); // Recording the contact of device 1 with device 2.
@@ -161,48 +159,42 @@ public class MobileDevice { // MobileDevice Class - This class is used to concep
         config3.setProperty("address", "217.292.11.1");  // Defining the address of the mobile device
         config3.setProperty("deviceName", "iPhone 11 Pro"); // Defining the name of the mobile device
         unique = config3.getProperty("address") + config3.getProperty("deviceName"); // We use string concatenation to combine both device name and the address.
-       // String deviceHash3 = HashGenerator(unique); // Send the combined string as parameter to generate the unique Hash of the device.
-        String deviceHash3 = "Device-3";
+        String deviceHash3 = HashGenerator(unique); // Send the combined string as parameter to generate the unique Hash of the device.
         config3.setProperty("deviceHash", deviceHash3);  // Setting the Hash of the device.
         MobileDevice device3 = new MobileDevice(config3,contactTracer); // Creating the instance of the device third with config properties and contactTracer object.
         Properties config4 = new Properties();  // We create the config of the fourth mobile device
         config4.setProperty("address", "317.232.21.11"); // Defining the address of the mobile device
         config4.setProperty("deviceName", "iPhone 8 Pro"); // Defining the name of the mobile device
         unique = config4.getProperty("address") + config4.getProperty("deviceName"); // We use string concatenation to combine both device name and the address.
-        //String deviceHash4 = HashGenerator(unique); // Send the combined string as parameter to generate the unique Hash of the device.
-        String deviceHash4 = "Device-4";
+        String deviceHash4 = HashGenerator(unique); // Send the combined string as parameter to generate the unique Hash of the device.
         config4.setProperty("deviceHash", deviceHash4); //Setting the Hash
         MobileDevice device4 = new MobileDevice(config4,contactTracer); // Object Creation of the device
         Properties config5 = new Properties(); // New Mobile Device Properties
         config5.setProperty("address", "412.432.211.211"); // Setting the address of the device
         config5.setProperty("deviceName", "iPhone 7 Pro"); // Setting the name of the device
         unique = config5.getProperty("address") + config5.getProperty("deviceName"); // We use string concatenation to combine both device name and the address.
-        //String deviceHash5 = HashGenerator(unique);// Send the combined string as parameter to generate the unique Hash of the device.
-        String deviceHash5 = "Device-5";
+        String deviceHash5 = HashGenerator(unique);// Send the combined string as parameter to generate the unique Hash of the device.
         config5.setProperty("deviceHash", deviceHash5);//Setting the Hash
         MobileDevice device5 = new MobileDevice(config5,contactTracer); // Object Creation of the device
         Properties config6 = new Properties(); // New Mobile Device Properties
         config6.setProperty("address", "112.42.22.61"); // Setting the address of the device
         config6.setProperty("deviceName", "Google Pixel 2");// Setting the name of the device
         unique = config6.getProperty("address") + config6.getProperty("deviceName");// We use string concatenation to combine both device name and the address.
-        //String deviceHash6 = HashGenerator(unique);// Send the combined string as parameter to generate the unique Hash of the device.
-        String deviceHash6 = "Device-6";
+        String deviceHash6 = HashGenerator(unique);// Send the combined string as parameter to generate the unique Hash of the device.
         config6.setProperty("deviceHash", deviceHash6); //Setting the Hash
         MobileDevice device6 = new MobileDevice(config6,contactTracer); // Object Creation of the device
         Properties config7 = new Properties(); // New Mobile Device Properties
         config7.setProperty("address", "12.242.122.711");  // Setting the address of the device
         config7.setProperty("deviceName", "Google Pixel 3"); // Setting the name of the device
         unique = config7.getProperty("address") + config7.getProperty("deviceName"); // We use string concatenation to combine both device name and the address.
-        //String deviceHash7 = HashGenerator(unique); // Send the combined string as parameter to generate the unique Hash of the device.
-        String deviceHash7 = "Device-7";
+        String deviceHash7 = HashGenerator(unique); // Send the combined string as parameter to generate the unique Hash of the device.
         config7.setProperty("deviceHash", deviceHash7);  //Setting the Hash
         MobileDevice device7 = new MobileDevice(config7,contactTracer);  // Object Creation of the device
         Properties config8 = new Properties(); // New Mobile Device Properties
         config8.setProperty("address", "42.51.172.111"); // Setting the address of the device
         config8.setProperty("deviceName", "Samsung Galaxy S11");  // Setting the name of the device
         unique = config8.getProperty("address") + config8.getProperty("deviceName"); // We use string concatenation to combine both device name and the address.
-       //String deviceHash8 = HashGenerator(unique); // Send the combined string as parameter to generate the unique Hash of the device.
-        String deviceHash8 = "Device-8";
+       String deviceHash8 = HashGenerator(unique); // Send the combined string as parameter to generate the unique Hash of the device.
         config8.setProperty("deviceHash", deviceHash8); //Setting the Hash
         MobileDevice device8 = new MobileDevice(config8,contactTracer); // Object Creation of the device
         Properties config9 = new Properties(); // New Mobile Device Properties
@@ -222,6 +214,7 @@ public class MobileDevice { // MobileDevice Class - This class is used to concep
         device1.synchronizeData(); // Synching device 1.
 
         // The below statements are used to record contacts between the devices.
+
         device1.recordContact(deviceHash3,50,30);
         device3.recordContact(deviceHash1,50,30);
         device1.recordContact(deviceHash3,50,35);
@@ -263,8 +256,10 @@ public class MobileDevice { // MobileDevice Class - This class is used to concep
         device1.positiveTest(HashGenerator("2323AACCVVV")); // This method call is used by the user to record a positive test
         // The following statements are used to synchronize various devices with the SynchronizeData Method.
        // contactTracer.recordTestResult(HashGenerator("2323AACCVVV"), 50, true); // This method call is used to record testresult into the government's database
-
-
+        System.out.println("DEVICE - 1 "+device1.synchronizeData());
+        System.out.println("DEVICE - 2 "+device2.synchronizeData());
+        System.out.println("DEVICE - 3 "+device3.synchronizeData());
+        System.out.println("DEVICE - 4 "+device4.synchronizeData());
         System.out.println("DEVICE - 5 "+device5.synchronizeData());
         System.out.println("DEVICE - 6 "+device6.synchronizeData());
         System.out.println("DEVICE - 7 "+device7.synchronizeData());
