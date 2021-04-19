@@ -262,18 +262,14 @@ public class MobileDevice { // MobileDevice Class - This class is used to concep
         device7.recordContact(deviceHash8,21,15);
         device1.positiveTest(HashGenerator("2323AACCVVV")); // This method call is used by the user to record a positive test
         // The following statements are used to synchronize various devices with the SynchronizeData Method.
-        System.out.println("DEVICE - 1 "+device1.synchronizeData());
-        System.out.println("DEVICE - 2 "+device2.synchronizeData());
-        System.out.println("DEVICE - 3 "+device3.synchronizeData());
-        System.out.println("DEVICE - 4 "+device4.synchronizeData());
+       // contactTracer.recordTestResult(HashGenerator("2323AACCVVV"), 50, true); // This method call is used to record testresult into the government's database
+
+
         System.out.println("DEVICE - 5 "+device5.synchronizeData());
         System.out.println("DEVICE - 6 "+device6.synchronizeData());
         System.out.println("DEVICE - 7 "+device7.synchronizeData());
         System.out.println("DEVICE - 8 "+device8.synchronizeData());
 
-
-
-     //   contactTracer.recordTestResult(HashGenerator("2323AACCVVV"), 23, true); // This method call is used to record testresult into the government's database
 
         System.out.println(contactTracer.findGatherings(50, 2, 32, 0.6f));
         System.out.println(contactTracer.findGatherings(50, 3, 32, 0.6f));

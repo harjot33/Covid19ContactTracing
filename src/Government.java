@@ -73,10 +73,8 @@ public class Government { // This Government Class is used to mimic how the Gove
                     if(cp_status.equals("true")){ // If it is a positive status device
                         positive_contact = rs1.getString("deviceHash");
                         pcontact_date = contact_date;
-                        String incomingpcdate =  rs1.getString("ptest_date");
-                        String[] tdatelist = incomingpcdate.split(","); // Now we create an array of strings with "," as the delimiter from the contact_list taken from the database
-                        for(int i =0 ; i <tdatelist.length; i++) {
-                            pctest_date = tdatelist[i];
+                        pctest_date =  rs1.getString("ptest_date");
+                      //  String[] tdatelist = incomingpcdate.split(","); // Now we create an array of strings with "," as the delimiter from the contact_list taken from the database
                             ftcdate = daysAddition(pctest_date, 14); // We check if the date of contact is within the 14 days
                             ptcdate = daysAddition(pctest_date, -14); // We check if the date of contact is within the 14 days
 
@@ -84,10 +82,7 @@ public class Government { // This Government Class is used to mimic how the Gove
                                 positive_status = "false";
                                 ptest_date = "null";
                                 comecontact = true; // Setting the comecontact as true.
-                                break;
                             }
-                        }
-
                     }
                 }
             }
@@ -315,6 +310,13 @@ public class Government { // This Government Class is used to mimic how the Gove
                     String incominghash = contactlist.get(i); // Retrieving the new contacts from the list one by one as the loop iterates.
 
                     if(devicelist.contains(incominghash)){ // This statement is for those conditions when a previously added contact has been added again.
+                        rs1 = statement.executeQuery("Select * from devicerecord where devicehash='"+incominghash+"'");
+                        rs1.next();
+                        positive_status = rs1.getString("positive_status");
+                        if(positive_status == "true"){
+                            comecontact = true;
+                            rstatement.executeUpdate("Update devicerecord SET usernotified='true' where devicehash='" + sourceHash + "';"); // Update the same in the database
+                        }
                         resultSet  = statement.executeQuery("Select source_device,contact_date,contact_duration from contact_tracker where contact_device='"+incominghash+"'");
                         resultSet.next(); // Shifting to the next row which actually points to the data.
                         String cdate = resultSet.getString("contact_date");// Getting the contact_date
@@ -354,17 +356,15 @@ public class Government { // This Government Class is used to mimic how the Gove
                         contact_date = resultSet.getString("contact_date");
                     } // Getting the date of contact.
                     String cp_status = "";
-                    if(resultSet.isBeforeFirst()){
+                    if(rs1.isBeforeFirst()){
                         rs1.next();
                         cp_status = rs1.getString("positive_status"); // Getting the positive status of the contact
                     }
                     if(cp_status.equals("true")){ // If its true we then check the date of the contact and compare it with the test date of the device which has test positive, using the absolute value.
                         positive_contact = rs1.getString("deviceHash");
                         pcontact_date = contact_date;
-                        String incomingpcdate =  rs1.getString("ptest_date");
-                        String[] tdatelist = incomingpcdate.split(","); // Now we create an array of strings with "," as the delimiter from the contact_list taken from the database
-                        for(int m =0 ; m <tdatelist.length; m++) {
-                            pctest_date = tdatelist[m];
+                         pctest_date =  rs1.getString("ptest_date");
+                         // Now we create an array of strings with "," as the delimiter from the contact_list taken from the database
                             ftcdate = daysAddition(pctest_date, 14); // We check if the date of contact is within the 14 days
                             ptcdate = daysAddition(pctest_date, -14); // We check if the date of contact is within the 14 days
 
@@ -374,9 +374,8 @@ public class Government { // This Government Class is used to mimic how the Gove
                                 comecontact = true; // We set the comecontact boolean to be true to signal that it has been in contact with a positive person
                                 usernotified = "true"; // User has been notified.
                                 rstatement.executeUpdate("Update devicerecord SET usernotified='true' where devicehash='" + sourceHash + "';"); // Update the same in the database
-                                break;
                             }
-                        }
+
 
                     }
 
@@ -496,6 +495,7 @@ public class Government { // This Government Class is used to mimic how the Gove
             }
 
         }
+
 
         if(comecontact) { // If the user has come in contact with a positive person, we will return true.
             return true;
