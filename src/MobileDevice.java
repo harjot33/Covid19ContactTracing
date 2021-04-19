@@ -120,7 +120,7 @@ public class MobileDevice { // MobileDevice Class - This class is used to concep
         return contactTracer.mobileContact(initiator,contactInfo); // Call the Government class's method mobileContact using the contactTracer object which as initatior (host device) and its information string as the parameters.
      }
 
-    private static String HashGenerator(String deviceName) throws NoSuchAlgorithmException { // This is a static function which is used to generate the SHA - 256 Hashes of the Device and its Address.
+    public static String HashGenerator(String deviceName) throws NoSuchAlgorithmException { // This is a static function which is used to generate the SHA - 256 Hashes of the Device and its Address.
 
         MessageDigest md = MessageDigest.getInstance("SHA-256"); // Instantiate MessageDigest Class with "SHA-256" as the format.
         byte[] sha256 = md.digest(deviceName.getBytes(StandardCharsets.UTF_8)); // We take the string and convert it into UTF_8 format Bye stream
