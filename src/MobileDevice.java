@@ -155,8 +155,8 @@ public class MobileDevice { // MobileDevice Class - This class is used to concep
         String deviceHash2 = "Device-2";
         config2.setProperty("deviceHash", deviceHash2); // Setting the Hash of the device.
         MobileDevice device2 = new MobileDevice(config2,contactTracer); // Creating the instance of the device - 2 with config properties and contactTracer object.
-        device1.recordContact(deviceHash2,31,2); // Recording the contact of device 1 with device 2.
-        device2.recordContact(deviceHash1,31,2); // Recordng the contact of device 2 with device 1.
+        device1.recordContact(deviceHash2,50,30); // Recording the contact of device 1 with device 2.
+        device2.recordContact(deviceHash1,50,30); // Recordng the contact of device 2 with device 1.
         Properties config3 = new Properties(); // We create the config of the third mobile device
         config3.setProperty("address", "217.292.11.1");  // Defining the address of the mobile device
         config3.setProperty("deviceName", "iPhone 11 Pro"); // Defining the name of the mobile device
@@ -222,30 +222,40 @@ public class MobileDevice { // MobileDevice Class - This class is used to concep
         device1.synchronizeData(); // Synching device 1.
 
         // The below statements are used to record contacts between the devices.
-       device1.recordContact(deviceHash3,21,30);
-        device3.recordContact(deviceHash1,21,30);
-        device1.recordContact(deviceHash4,21,15);
-        device4.recordContact(deviceHash1,21,15);
-        device2.recordContact(deviceHash3,21,15);
-        device3.recordContact(deviceHash2,21,15);
-        device3.recordContact(deviceHash4,21,15);
-        device4.recordContact(deviceHash3,21,15);
-        device2.recordContact(deviceHash4,21,15);
-        device4.recordContact(deviceHash2,21,15);
+        device1.recordContact(deviceHash3,50,30);
+        device3.recordContact(deviceHash1,50,30);
+        device1.recordContact(deviceHash3,50,35);
+        device3.recordContact(deviceHash1,50,35);
+        device1.recordContact(deviceHash3,50,22);
+        device3.recordContact(deviceHash1,50,22);
+        device1.recordContact(deviceHash4,50,37);
+        device4.recordContact(deviceHash1,50,37);
+        device2.recordContact(deviceHash3,50,38);
+        device3.recordContact(deviceHash2,50,38);
+        device3.recordContact(deviceHash4,50,36);
+        device4.recordContact(deviceHash3,50,36);
+        device2.recordContact(deviceHash4,50,41);
+        device4.recordContact(deviceHash2,50,41);
         device1.recordContact(deviceHash5,21,15);
         device5.recordContact(deviceHash1,21,15);
-        device2.recordContact(deviceHash5,21,15);
-        device5.recordContact(deviceHash2,21,15);
-        device4.recordContact(deviceHash5,21,15);
-        device5.recordContact(deviceHash4,21,15);
+        device2.recordContact(deviceHash5,50,39);
+        device5.recordContact(deviceHash2,50,39);
+        device4.recordContact(deviceHash5,50,34);
+        device5.recordContact(deviceHash4,50,34);
         device6.recordContact(deviceHash4,21,15);
-        device4.recordContact(deviceHash6,21,15);
+        device5.recordContact(deviceHash6,50,42);
+        device6.recordContact(deviceHash5,50,42);
+        device5.recordContact(deviceHash3,50,41);
+        device3.recordContact(deviceHash5,50,41);
+        device4.recordContact(deviceHash6,50,47);
+        device6.recordContact(deviceHash4,50,34);
+        device4.recordContact(deviceHash6,50,34);
         device1.recordContact(deviceHash7,21,15);
         device7.recordContact(deviceHash1,21,15);
-        device2.recordContact(deviceHash7,21,15);
-        device7.recordContact(deviceHash2,21,15);
-        device3.recordContact(deviceHash7,21,15);
-        device7.recordContact(deviceHash3,21,15);
+        device2.recordContact(deviceHash7,50,28);
+        device7.recordContact(deviceHash2,50,28);
+        device3.recordContact(deviceHash7,50,47);
+        device7.recordContact(deviceHash3,50,47);
         device4.recordContact(deviceHash7,21,15);
         device7.recordContact(deviceHash4,21,15);
         device8.recordContact(deviceHash7,21,15);
@@ -265,8 +275,10 @@ public class MobileDevice { // MobileDevice Class - This class is used to concep
 
      //   contactTracer.recordTestResult(HashGenerator("2323AACCVVV"), 23, true); // This method call is used to record testresult into the government's database
 
-        int a = contactTracer.findGatherings(21,0,2,1); // This method is used to find the gatherings on a given date.
-        System.out.println(a);
+        System.out.println(contactTracer.findGatherings(50, 2, 32, 0.6f));
+        System.out.println(contactTracer.findGatherings(50, 3, 32, 0.6f));
+        System.out.println(contactTracer.findGatherings(50, 4, 32, 0.49f));
+        System.out.println(contactTracer.findGatherings(50, 5, 32, 0.49f));
 
     }
 }

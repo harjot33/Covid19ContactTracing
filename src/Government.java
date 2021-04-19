@@ -73,15 +73,21 @@ public class Government { // This Government Class is used to mimic how the Gove
                     if(cp_status.equals("true")){ // If it is a positive status device
                         positive_contact = rs1.getString("deviceHash");
                         pcontact_date = contact_date;
-                        pctest_date =  rs1.getString("ptest_date");
-                        ftcdate = daysAddition(pctest_date,14); // We check if the date of contact is within the 14 days
-                        ptcdate = daysAddition(pctest_date,-14); // We check if the date of contact is within the 14 days
+                        String incomingpcdate =  rs1.getString("ptest_date");
+                        String[] tdatelist = incomingpcdate.split(","); // Now we create an array of strings with "," as the delimiter from the contact_list taken from the database
+                        for(int i =0 ; i <tdatelist.length; i++) {
+                            pctest_date = tdatelist[i];
+                            ftcdate = daysAddition(pctest_date, 14); // We check if the date of contact is within the 14 days
+                            ptcdate = daysAddition(pctest_date, -14); // We check if the date of contact is within the 14 days
 
-                        if(WithinPositveRange(pcontact_date,ptcdate,ftcdate)){ // If contact date indeed is +-14 days since the test date
-                            positive_status = "false";
-                            ptest_date = "null";
-                            comecontact = true; // Setting the comecontact as true.
+                            if (WithinPositveRange(pcontact_date, ptcdate, ftcdate)) { // If contact date indeed is +-14 days since the test date
+                                positive_status = "false";
+                                ptest_date = "null";
+                                comecontact = true; // Setting the comecontact as true.
+                                break;
+                            }
                         }
+
                     }
                 }
             }
@@ -92,7 +98,6 @@ public class Government { // This Government Class is used to mimic how the Gove
 
                 for(int i = 0 ; i<testlist.getLength(); i++){ // Looping through the testlist arraylist
                     testhash = document.getElementsByTagName("testHash").item(i).getTextContent(); // Getting the testhash of one of tests present in the last
-                    //    System.out.println(testhash);
                     resultSet = statement.executeQuery("Select TestHash,testDate, TestResult from TestRecord where TestHash ='"+testhash+"';"); // Getting complete details based on the testhash
 
                     if(resultSet.isBeforeFirst()) { // If the resultSet is not empty
@@ -107,7 +112,6 @@ public class Government { // This Government Class is used to mimic how the Gove
                 if(thashlist.size()==1 && thashlist.get(0).equals(document.getElementsByTagName("testHash").item(0).getTextContent())){ // If the device has only 1 test in its testlist record.
                     String govtresult = resultSet.getString("TestResult"); // We get the result of the test
                     if(govtresult.equals("true")){
-                        System.out.println("TEST HAS BEEN VALIDATED"); // If the results match, then we have validated
                         singulartest  = true; // Set it as true to tell there is only one test.
                     }
 
@@ -121,7 +125,6 @@ public class Government { // This Government Class is used to mimic how the Gove
                         resultSet = statement.executeQuery("Select TestHash,testDate, TestResult from TestRecord where TestHash ='"+testhash+"';"); // Query to get details about a test.
                         String govtresult = resultSet.getString("TestResult");
                         if(govtresult.equals("true")){ // Validating test result with local and DB
-                            System.out.println("TEST HAS BEEN VALIDATED");
                             String date = resultSet.getString("testDate"); // Getting the date of the test
                             testdateregister.put(i,date); //Adding it to the test data register
                             keytracker.add(i); // Keeping track of the keys.
@@ -188,7 +191,6 @@ public class Government { // This Government Class is used to mimic how the Gove
 
             NodeList ok = document.getElementsByTagName("device"); // Get the elements related to the device.
 
-         //   System.out.println(document.getElementsByTagName("testHash").item(0).getTextContent());
             for(int i =0 ; i < ok.getLength(); i++){ // In this iterative statement, we loop over the elements as we add to the contact, date and duration arraylists.
                         String deviceHash  =document.getElementsByTagName("deviceHash").item(i).getTextContent();
                         contactlist.add(deviceHash);
@@ -276,10 +278,10 @@ public class Government { // This Government Class is used to mimic how the Gove
             String positive_status = "";
             String positive_contact ;
             String pcontact_date;
-            String pctest_date;
+            String pctest_date="";
             String ftcdate ;
             String ptcdate;
-            String ptest_date;
+            String ptest_date="";
             resultSet.next();
             for(int i =0 ; i < ok.getLength(); i++){ // In this iterative statement, we loop over the previously created Document elements as we add to the contact, date and duration arraylists.
                 String deviceHash  =document.getElementsByTagName("deviceHash").item(i).getTextContent();
@@ -336,7 +338,7 @@ public class Government { // This Government Class is used to mimic how the Gove
 
                         }
 
-                    }else{ // If the contact happeneed on a different day, new contacts happening on a different day.
+                    }else{ // If the contact happened on a different day, new contacts happening on a different day.
                         if(i==contactlist.size()-1){
                              lastcontact = incominghash; // Getting the last contact
                         }
@@ -351,21 +353,29 @@ public class Government { // This Government Class is used to mimic how the Gove
                         resultSet.next();
                         contact_date = resultSet.getString("contact_date");
                     } // Getting the date of contact.
-                    rs1.next();
-                    String cp_status = rs1.getString("positive_status"); // Getting the positive status of the contact
+                    String cp_status = "";
+                    if(resultSet.isBeforeFirst()){
+                        rs1.next();
+                        cp_status = rs1.getString("positive_status"); // Getting the positive status of the contact
+                    }
                     if(cp_status.equals("true")){ // If its true we then check the date of the contact and compare it with the test date of the device which has test positive, using the absolute value.
                         positive_contact = rs1.getString("deviceHash");
                         pcontact_date = contact_date;
-                        pctest_date =  rs1.getString("ptest_date");
-                        ftcdate = daysAddition(pctest_date,14);
-                        ptcdate = daysAddition(pctest_date,-14);
+                        String incomingpcdate =  rs1.getString("ptest_date");
+                        String[] tdatelist = incomingpcdate.split(","); // Now we create an array of strings with "," as the delimiter from the contact_list taken from the database
+                        for(int m =0 ; m <tdatelist.length; m++) {
+                            pctest_date = tdatelist[m];
+                            ftcdate = daysAddition(pctest_date, 14); // We check if the date of contact is within the 14 days
+                            ptcdate = daysAddition(pctest_date, -14); // We check if the date of contact is within the 14 days
 
-                        if(WithinPositveRange(pcontact_date,ptcdate,ftcdate)){ // If it is found that it is within the absolute range +-14 Days, then we say that the device has come in contact with a positive person.
-                            positive_status = "false";
-                            ptest_date = "null";
-                            comecontact = true; // We set the comecontact boolean to be true to signal that it has been in contact with a positive person
-                            usernotified="true"; // User has been notified.
-                            rstatement.executeUpdate("Update devicerecord SET usernotified='true' where devicehash='"+sourceHash+"';"); // Update the same in the database
+                            if (WithinPositveRange(pcontact_date, ptcdate, ftcdate)) { // If it is found that it is within the absolute range +-14 Days, then we say that the device has come in contact with a positive person.
+                                positive_status = "false";
+                                ptest_date = "null";
+                                comecontact = true; // We set the comecontact boolean to be true to signal that it has been in contact with a positive person
+                                usernotified = "true"; // User has been notified.
+                                rstatement.executeUpdate("Update devicerecord SET usernotified='true' where devicehash='" + sourceHash + "';"); // Update the same in the database
+                                break;
+                            }
                         }
 
                     }
@@ -393,16 +403,22 @@ public class Government { // This Government Class is used to mimic how the Gove
                             if(cp_status.equals("true")){ // If any of the device has tested positive, then we use the absolute value of its test date to determine whether the host device has come in contact with it or not
                                  positive_contact = rs1.getString("deviceHash");
                                  pcontact_date = contact_date;
-                                 pctest_date =  rs1.getString("ptest_date");
-                                 ftcdate = daysAddition(pctest_date,14);
-                                 ptcdate = daysAddition(pctest_date,-14);
+                                String incomingpcdate =  rs1.getString("ptest_date");
+                                String[] tdatelist = incomingpcdate.split(","); // Now we create an array of strings with "," as the delimiter from the contact_list taken from the database
+                                for(int i =0 ; i <tdatelist.length; i++) {
+                                    pctest_date = tdatelist[i];
+                                    ftcdate = daysAddition(pctest_date, 14); // We check if the date of contact is within the 14 days
+                                    ptcdate = daysAddition(pctest_date, -14); // We check if the date of contact is within the 14 days
 
-                                if(WithinPositveRange(pcontact_date,ptcdate,ftcdate)){// If it is found that it is within the absolute range +-14 Days, then we say that the device has come in contact with a positive person.
-                                    usernotified = "true";
-                                    rstatement.executeUpdate("Update devicerecord SET usernotified='true' where devicehash='"+sourceHash+"';"); // User notified updated
-                                    rstatement.executeUpdate("Update devicerecord SET pcontact_date='"+contact_date+"' where devicehash='"+sourceHash+"';");// Positive Contact Date has been updated.
-                                    comecontact = true;
+                                    if (WithinPositveRange(pcontact_date, ptcdate, ftcdate)) {// If it is found that it is within the absolute range +-14 Days, then we say that the device has come in contact with a positive person.
+                                        usernotified = "true";
+                                        rstatement.executeUpdate("Update devicerecord SET usernotified='true' where devicehash='" + sourceHash + "';"); // User notified updated
+                                        rstatement.executeUpdate("Update devicerecord SET pcontact_date='" + contact_date + "' where devicehash='" + sourceHash + "';");// Positive Contact Date has been updated.
+                                        comecontact = true;
+                                        break;
+                                    }
                                 }
+
                             }
                         }
                     }
@@ -419,7 +435,6 @@ public class Government { // This Government Class is used to mimic how the Gove
 
                 for(int i = 0 ; i<testlist.getLength(); i++){ // Loop through the testlist.
                     testhash = document.getElementsByTagName("testHash").item(i).getTextContent(); // Get the tests one by one from the elements.
-                    //    System.out.println(testhash);
                     resultSet = statement.executeQuery("Select TestHash,TestDevice, testDate, TestResult from TestRecord where TestHash ='"+testhash+"';"); // Retrieving the test date from the database.
                     if(resultSet.isBeforeFirst()) {
                         resultSet.next();
@@ -464,117 +479,63 @@ public class Government { // This Government Class is used to mimic how the Gove
                         resultSet.next();
                         String govtresult = resultSet.getString("TestResult");
                         if(govtresult.equals("true")){ // We add the positive test hashes of the device in the following code sequence
-                            System.out.println("TEST HAS BEEN VALIDATED");
                             String date = resultSet.getString("testDate");
                             testDateAddition.add(date);
                             testdateregister.put(i,date);
                             keytracker.add(i);
                         }
                     }
-                    String smalldate = testdateregister.get(0);
-                    Date firstdate = new Date();
-                    Date date1 = sdf.parse(smalldate);
-                    for(int i =1 ; i<testdateregister.size();i++){
-                        // In this code section, we use iterate to find the "ExceptionDate" of the tests, by this it is meant that suppose a user has tested positive beyond the 14 days from the first date that they had tested positive
-                        // So we consider this as an exception date and similarly add the instances of these dates to the ExceptionDate ArrayList.
-                        int key = keytracker.get(i);
-                        Date date2 = sdf.parse(testdateregister.get(key));
-                        if(date2.after(date1)){
-                            firstdate = date1;
-                            calendar.setTime(date1);
-                            calendar.add(Calendar.DAY_OF_MONTH,14);
-                            String futuredate = sdf.format(calendar.getTime());
-                            Date negativedate = sdf.parse(futuredate);
-                            String entry = sdf.format(negativedate);
 
-                            if(negativedate.before(date2)){
-                                ExceptionDate.add(entry);
-                            }
-
-                        }else{
-                            firstdate = date2;
-                            calendar.setTime(firstdate);
-                            calendar.add(Calendar.DAY_OF_MONTH,14);
-                            String futuredate = sdf.format(calendar.getTime());
-                            Date negativedate = sdf.parse(futuredate);
-                            String entry = sdf.format(negativedate);
-
-                            if(negativedate.before(date1)){
-                                ExceptionDate.add(entry);
-                            }
-                        }
-                    }
-                    Date final_date = sdf.parse("01-01-2021");
-                    if(ExceptionDate.size()!=0){ // If it is found that the exception date arraylist has a size greater than 0, then we move to set the final date as the largest exception date.
-                        for(int i =0 ; i<ExceptionDate.size();i++){
-                            Date current_date = sdf.parse(ExceptionDate.get(i));
-
-                            if(current_date.after(final_date)){
-                                final_date = current_date;
-                            }
-                        }
-                        exception_date = sdf.format(final_date);
-                        pcontact_date = "null";
-                        positive_contact = "SELF";
-                        ptest_date = sdf.format(firstdate);
-                        positive_status="true";
-                        statement.executeUpdate("Update devicerecord SET positive_status='"+positive_status+"' where devicehash='"+sourceHash+"';");
-                        statement.executeUpdate("Update devicerecord SET ptest_date='"+ptest_date+"' where devicehash='"+sourceHash+"';");
-                        rstatement.executeUpdate("Update devicerecord SET usernotified='false' where devicehash='"+sourceHash+"';");
-
-                    }else{
-                        pcontact_date = "null";
-                        positive_contact = "SELF";
-                        ptest_date = sdf.format(firstdate);
-                        positive_status="true";
-                        statement.executeUpdate("Update devicerecord SET positive_status='"+positive_status+"' where devicehash='"+sourceHash+"';");
-                        statement.executeUpdate("Update devicerecord SET ptest_date='"+ptest_date+"' where devicehash='"+sourceHash+"';");
-                        rstatement.executeUpdate("Update devicerecord SET usernotified='false' where devicehash='"+sourceHash+"';");
-
-                    }
-
-
+                    ptest_date = String.join(",", testDateAddition);
+                    positive_status="true";
+                    // Updating the database with the positive status, ptest_date and the usernotified strings.
+                    statement.executeUpdate("Update devicerecord SET positive_status='"+positive_status+"' where devicehash='"+sourceHash+"';");
+                    statement.executeUpdate("Update devicerecord SET ptest_date='"+ptest_date+"' where devicehash='"+sourceHash+"';");
+                    rstatement.executeUpdate("Update devicerecord SET usernotified='false' where devicehash='"+sourceHash+"';");
                 }
-            }else{
-                notest = true;
             }
 
         }
 
-        if(comecontact) {
+        if(comecontact) { // If the user has come in contact with a positive person, we will return true.
             return true;
         }else{
-            return  false;
+            return  false; // Return false if there has been no contact with a positive person.
         }
     }
 
 
 
-    public int findGatherings(int date, int minSize, int minTime, float density) throws SQLException {
-        if(statement==null){
-            ConnectionEshtablisher("");
+    public int findGatherings(int date, int minSize, int minTime, float density) throws SQLException { // This method is used to find the number of gatherings at a particular day when the individuals are equal
+        // or above to minsize individuals and they meet for a required mintime. It also depends on the density which is the ratio of c/m - where c is the individual pairs who met for mintime and m is the maximum number of intersectional pairs.
+        if(date<1 || minSize <0 || minTime<1 || density < 0){ // Input Validation - This is used to check
+            return 0;
         }
-        int gatherings = 0;
 
-        String finaldate = null;
+        if(statement==null){ // If the statement is null
+            ConnectionEshtablisher(""); // We call the ConnectionEshtablisher method.
+        }
+        int gatherings = 0; // Initialize gatherings with 0.
+
+        String finaldate = null; // The finaldate is initialize with 0
         try {
-            finaldate = daysAddition("01-01-2021",date);
+            finaldate = daysAddition("01-01-2021",date); // We add the date to the finaldate to get the proper date of the gathering.
         } catch (ParseException e) {
             e.printStackTrace();
         }
         resultSet= statement.executeQuery("Select source_device, contact_device, contact_date, contact_duration from contact_tracker where contact_date='"+finaldate+"'");
-        Set<String> Set1 = new LinkedHashSet<>();
-        Set<Set<String>> S = new LinkedHashSet<>();
-        LinkedHashMap<String,Set<String>> contacts = new LinkedHashMap<>();
-        LinkedHashMap<String,String> co_duration = new LinkedHashMap<>();
-        while (resultSet.next()){
-            String key = resultSet.getString("source_device");
-            String value = resultSet.getString("contact_device");
-            String combinedkey = key+value;
-            String dur = resultSet.getString("contact_duration");
-            co_duration.put(combinedkey,dur);
+        // We use the above query to get the contact details of the devices who came in contact on the given date.
+        Set<Set<String>> S = new LinkedHashSet<>(); // The global Set S which contains the pairs of the intersected individuals
+        LinkedHashMap<String,Set<String>> contacts = new LinkedHashMap<>(); // HashMap contacts is used to store the devices as keys and their contacts as the keys.
+        LinkedHashMap<String,String> co_duration = new LinkedHashMap<>(); // This HashMap is used to store the duration of contact of the devices.
+        while (resultSet.next()){ // This is used to iterate to the next row of the resultSet
+            String key = resultSet.getString("source_device"); // This stores the source device as key
+            String value = resultSet.getString("contact_device"); // This stores the contact device as value
+            String combinedkey = key+value; // The combined key+value pair is stored as a string
+            String dur = resultSet.getString("contact_duration"); // This stores the duration.
+            co_duration.put(combinedkey,dur); // We put the combined key value pair and their duration into this hashmap
 
-            if(contacts.containsKey(key)){
+            if(contacts.containsKey(key)){ // Storing the Device as key and the contacts as its value
                 Set<String> incoming = contacts.get(key);
                 Set<String> outgoing = new LinkedHashSet<>(incoming);
                 outgoing.add(value);
@@ -586,69 +547,58 @@ public class Government { // This Government Class is used to mimic how the Gove
 
             }
         }
-        List<String> sourcecontacts = new ArrayList(contacts.keySet());
-        Set<Set<String>> testS = new LinkedHashSet<>();
-        System.out.println(contacts);
-        int count = 1;
-        int iz=0;
-        for(int i = 0 ; i<sourcecontacts.size() ; i++){
-            String key = sourcecontacts.get(i);
+        List<String> sourcecontacts = new ArrayList(contacts.keySet()); // We take the keyset of contacts and then store it into a list
+        int count = 1; // Count = 1 - Initialized
+        for(int i = 0 ; i<sourcecontacts.size() ; i++){ // We iterate through the devices, 1 by 1, making sure no duplicate pairs of the devices are called.
+            String key = sourcecontacts.get(i); // We follow an iterative approach to such that first device is the first key
             for(int j =count; j<sourcecontacts.size();j++){
-                String nextkey = sourcecontacts.get(j);
-             //   System.out.println("SET BEFORE RETAINING");
-             //   System.out.println("SET A - "+SetA);
-                Set<String> SetA = new LinkedHashSet<>(contacts.get(key));
-                Set<String> SetB = new LinkedHashSet<>(contacts.get(nextkey));
-                if(SetA.contains(nextkey) && SetB.contains(key)){
-                    SetA.add(key);
+                String nextkey = sourcecontacts.get(j); // The next key is the device which is on the next index.
+
+                Set<String> SetA = new LinkedHashSet<>(contacts.get(key)); // We get the contacts present in the first key as Set A
+                Set<String> SetB = new LinkedHashSet<>(contacts.get(nextkey)); // We get the contacts present in the second key as Set B
+                if(SetA.contains(nextkey) && SetB.contains(key)){ // To see if the source devices contact each other or not
+                    SetA.add(key); // If they do we add them in their respective sets.
                     SetB.add(nextkey);
                 }
-            //    System.out.println("SET B - "+ SetB);
-                SetA.retainAll(SetB);
-
-            //    System.out.println("AFTER RETAINTION");
-              //  System.out.println("SET-A +"+SetA);
-                S.add(SetA);
+                SetA.retainAll(SetB); // We then perform an intersection, where the common sets are then taken into Set A.
+                S.add(SetA); // Add Set A to gloal Set S
             }
             count++;
         }
-        System.out.println(S.size());
-        System.out.println(S);
-        for (Set Sb : S){
-            int indcount = 0;
-            ArrayList<String> tempset = new ArrayList<>(Sb);
+
+        for (Set Sb : S){ // Iterating for every set in the global set S
+            int c = 0;
+            ArrayList<String> tempset = new ArrayList<>(Sb); // ArrayList tempset contains sets of S iteratively
 
             int m = 0;
             int lcount = 1;
-            if(Sb.size()>=minSize){
-                for (int i =0; i<tempset.size();i++){
+            if(Sb.size()>=minSize){ // We check if the number of individuals in the set are equal to or more than the minsize.
+                for (int i =0; i<tempset.size();i++){ // Then we iterate over them
                     String first = tempset.get(i);
-                    if(tempset.size()>1){
+                    if(tempset.size()>1){ // if the tempset is greater than 1.
                         for(int j = lcount; j<tempset.size(); j++){
                             String second = tempset.get(j);
                             String combinedkey = first+second;
-                            if(co_duration.containsKey(combinedkey)) {
+                            if(co_duration.containsKey(combinedkey)) { // The combined key-value pair is used to get the duration of the contact
                                 String icduration = co_duration.get(combinedkey);
                                 int cduration = Integer.parseInt(icduration);
-                                if (cduration >= minTime) {
-                                    indcount++;
+                                if (cduration >= minTime) { // If the duration of the contact is more or equal to the mintime
+                                    c++; // we increment the c counter.
                                 }
                             }
                         }
                     }
 
                 }
-                int noofindividuals = tempset.size();
-                m = noofindividuals * (noofindividuals-1)/2;
-                System.out.println("THE INDCOUNT IS HERE => "+indcount);
-                System.out.println("THE M IS HERE =>"+ m);
+                int noofindividuals = tempset.size(); // Getting the no of individuals
+                m = noofindividuals * (noofindividuals-1)/2; // Getting the max number of individual pairs.
                 float ratio=0;
                 if(m>0) {
-                    ratio = indcount / m;
-                    System.out.println("RATIO IS HERE => "+ ratio);
+                    ratio = c / m;
+                    // The ratio of c/m
                 }
-                if(ratio>=density){
-                    gatherings++;
+                if(ratio>=density){ // If the ratio is greater or equal to the density
+                    gatherings++; // Increment gatherings
 
                 }
 
@@ -658,11 +608,10 @@ public class Government { // This Government Class is used to mimic how the Gove
         }
 
 
-        System.out.println(co_duration.size());
-        return gatherings;
+        return gatherings; // Return the gatherings.
     }
 
-    private boolean WithinPositveRange(String cdate, String ptdate, String ftdate) throws ParseException {
+    private boolean WithinPositveRange(String cdate, String ptdate, String ftdate) throws ParseException { // This method is used to check if the given date is within the given range
 
 
         Date contactdate = sdf.parse(cdate);
@@ -671,7 +620,7 @@ public class Government { // This Government Class is used to mimic how the Gove
         return !(contactdate.before(ptest) || contactdate.after(ftest));
     }
 
-    private String daysAddition(String date, int days) throws ParseException {
+    private String daysAddition(String date, int days) throws ParseException { // This method is used to add days to a given date.
 
         Date formatteddate = sdf.parse(date);
         Calendar calendar = Calendar.getInstance();
@@ -683,7 +632,7 @@ public class Government { // This Government Class is used to mimic how the Gove
     }
 
 
-    private boolean ConnectionEshtablisher(String initiator){
+    private boolean ConnectionEshtablisher(String initiator){ // This method is used to establish connection to the database.
 
         Connection connection = null; // Initializing connection with null
 
@@ -705,7 +654,7 @@ public class Government { // This Government Class is used to mimic how the Gove
         return true;
     }
 
-    public void recordTestResult(String testHash, int date, boolean result) throws SQLException {
+    public void recordTestResult(String testHash, int date, boolean result) throws SQLException { // This method is used to record the tests onto the government database server.
         if(testHash.isEmpty() || testHash==null || date < 1 ){
             System.out.println("Invalid Test Hash or Date");
             return;
